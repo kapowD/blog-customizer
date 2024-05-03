@@ -6,25 +6,18 @@ export type OnClick = (evt?: React.MouseEvent) => void;
 
 export type TArrowProps = {
 	open: boolean;
-	handleOpen?: OnClick;
+	handleOpen: OnClick;
 };
 
 export const ArrowButton = (arrowProps: TArrowProps) => {
 	const { open, handleOpen } = arrowProps;
-
-	const handleClick = () => {
-		if (handleOpen) {
-			handleOpen();
-		}
-	};
-
 	return (
 		<div
 			role='button'
 			aria-label='Открыть/Закрыть форму параметров статьи'
 			tabIndex={0}
 			className={clsx(styles.container, { [styles.container_open]: open })}
-			onClick={handleClick}>
+			onClick={handleOpen}>
 			<img
 				src={arrow}
 				alt='иконка стрелочки'

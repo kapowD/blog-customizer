@@ -15,7 +15,7 @@ import {
 	defaultArticleState,
 	ArticleStateType,
 } from 'src/constants/articleProps';
-import { useOutsideClickClose } from '../select/hooks/useOutsideClickClose';
+import { useClose } from '../select/hooks/useOutsideClickClose';
 import styles from './ArticleParamsForm.module.scss';
 //  Типы пропсов для  ArticleParamsForm
 interface ArticleParamsFormProps {
@@ -29,6 +29,10 @@ export const ArticleParamsForm = ({
 }: ArticleParamsFormProps) => {
 	const [isActive, setIsActive] = useState(false);
 	const asideRef = useRef<HTMLDivElement | null>(null);
+	const closeSidebar = () => {
+		setIsActive(false);
+	};
+	useClose({ isOpen: isActive, onClose: closeSidebar, rootRef: asideRef });
 
 	// Состояния настроек шрифта, размера шрифта, цвета шрифта, цвета фона и ширины
 	const [fontFamily, setFontFamily] = useState<
@@ -75,11 +79,6 @@ export const ArticleParamsForm = ({
 	};
 
 	// Обработчик клика вне элемента
-	useOutsideClickClose({
-		isOpen: isActive,
-		rootRef: asideRef,
-		onChange: setIsActive,
-	});
 
 	return (
 		<div ref={asideRef}>
