@@ -1,31 +1,42 @@
+// пример хука для закрытия внеобласти и по нажатию на esc
+
 import { useEffect } from 'react';
 
-type UseOutsideClickClose = {
+type TUseClose = {
 	isOpen: boolean;
-	onChange: (newValue: boolean) => void;
-	onClose?: () => void;
-	rootRef: React.RefObject<HTMLDivElement>;
+	onClose: () => void;
+	rootRef: React.RefObject<HTMLElement>;
 };
 
-export const useOutsideClickClose = ({
-	isOpen,
-	rootRef,
-	onClose,
-	onChange,
-}: UseOutsideClickClose) => {
+export function useClose({ isOpen, onClose, rootRef }: TUseClose) {
 	useEffect(() => {
-		const handleClick = (event: MouseEvent) => {
-			const { target } = event;
-			if (target instanceof Node && !rootRef.current?.contains(target)) {
-				isOpen && onClose?.();
-				onChange?.(false);
+		if (!isOpen) return; // останавливаем действие эффекта, если закрыто
+
+		function handleClickOutside(e: MouseEvent) {
+			const target = e;
+			const isOutsideClick =
+				target instanceof Node && // проверяем, что это `DOM`-элемент
+				rootRef.current &&
+				!rootRef.current.contains(target); // проверяем, что кликнули на элемент, который находится не внутри нашего блока
+			if (isOutsideClick) {
+				onClose();
+			}
+		}
+
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				onClose();
 			}
 		};
 
-		window.addEventListener('click', handleClick);
+		document.addEventListener('keydown', handleEscape);
+		document.addEventListener('mousedown', handleClickOutside);
 
+		//  обязательно удаляем обработчики в `clean-up`- функции
 		return () => {
-			window.removeEventListener('click', handleClick);
+			document.removeEventListener('keydown', handleEscape);
+			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, [onClose, onChange, isOpen]);
-};
+		// обязательно следим за `isOpen`, чтобы срабатывало только при открытии, а не при любой перерисовке компонента
+	}, [isOpen, onClose, rootRef]);
+}
